@@ -1,0 +1,22 @@
+name: Termin-Check Verpflichtungserklärung
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"   # alle 5 Minuten (GitHub kann Läufe verzögern)
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Termin prüfen
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        # Exit-Code 10 = früher Termin gefunden -> Job wird rot, GitHub schickt eine E-Mail
+        run: python3 check_termin.py --before 12.12.2026
